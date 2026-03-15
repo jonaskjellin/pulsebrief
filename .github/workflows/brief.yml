@@ -58,4 +58,5 @@ jobs:
       - name: Generate brief
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: npx tsx src/index.ts ${{ steps.command.outputs.cmd }}

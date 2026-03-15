@@ -3,6 +3,7 @@ import type { BriefItem } from "../ai";
 import { renderMarkdown, renderHtml, type RenderOptions } from "./render";
 import { deliverToFile } from "./file";
 import { deliverByEmail } from "./email";
+import { deliverByResend } from "./resend";
 
 export async function deliverBrief(
   items: BriefItem[],
@@ -27,6 +28,9 @@ export async function deliverBrief(
           break;
         case "email":
           await deliverByEmail(html, subject, channel);
+          break;
+        case "resend":
+          await deliverByResend(html, subject, channel.from, channel.to);
           break;
       }
     } catch (err) {

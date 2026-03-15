@@ -24,6 +24,12 @@ delivery:
     - type: file
       path: "data/briefs"
 
+    - type: resend
+      from: "Pulse Brief <pulse@pulsebrief.me>"
+      to:
+       - "jonas@kjellin.com"
+       - "jonas.kjellin@hm.com"
+
   # - type: email
   #   smtp_host: "smtp.example.com"
   #   smtp_port: 587

@@ -35,9 +35,16 @@ const EmailChannelSchema = z.object({
   to: z.string(),
 });
 
+const ResendChannelSchema = z.object({
+  type: z.literal("resend"),
+  from: z.string(),
+  to: z.array(z.string()),
+});
+
 const DeliveryChannelSchema = z.discriminatedUnion("type", [
   FileChannelSchema,
   EmailChannelSchema,
+  ResendChannelSchema,
 ]);
 
 // Brief preset definition
