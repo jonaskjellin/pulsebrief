@@ -39,7 +39,7 @@ function wrapHtml(body: string, title: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${title} — PulseBrief</title>
-  <link rel="alternate" type="application/atom+xml" title="PulseBrief Feed" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="PulseBrief Feed" href="feed.xml">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 16px; color: #1a1a1a; line-height: 1.6; }
@@ -64,7 +64,7 @@ function wrapHtml(body: string, title: string): string {
   </style>
 </head>
 <body>
-  <div class="nav"><a href="/">← All Briefs</a> · <a href="/feed.xml">RSS</a></div>
+  <div class="nav"><a href="./">← All Briefs</a> · <a href="feed.xml">RSS</a></div>
   ${body}
 </body>
 </html>`;
@@ -94,7 +94,7 @@ function buildIndexPage(briefs: BriefRecord[], readerName?: string): string {
   const sections = [...byDate.entries()].map(([date, entries]) => {
     const items = entries.map(({ filename, brief }) => {
       const type = brief.run_type.charAt(0).toUpperCase() + brief.run_type.slice(1);
-      return `<li><a href="/${filename}">${type} Pulse</a></li>`;
+      return `<li><a href="${filename}">${type} Pulse</a></li>`;
     }).join("\n        ");
     return `<div class="day">
       <h2>${date}</h2>
@@ -110,7 +110,7 @@ function buildIndexPage(briefs: BriefRecord[], readerName?: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${name}'s Pulse</title>
-  <link rel="alternate" type="application/atom+xml" title="${name}'s Pulse Feed" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="${name}'s Pulse Feed" href="feed.xml">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 16px; color: #1a1a1a; line-height: 1.6; }
@@ -127,7 +127,7 @@ function buildIndexPage(briefs: BriefRecord[], readerName?: string): string {
 </head>
 <body>
   <h1>${name}'s Pulse</h1>
-  <p class="subtitle">Personal intelligence briefs · <a href="/feed.xml">RSS Feed</a></p>
+  <p class="subtitle">Personal intelligence briefs · <a href="feed.xml">RSS Feed</a></p>
   ${sections}
 </body>
 </html>`;
