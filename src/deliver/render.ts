@@ -92,17 +92,22 @@ export function renderMarkdown(items: BriefItem[], options: RenderOptions = {}):
 }
 
 export function renderHtml(markdown: string): string {
-  return markdown
-    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+  let html = markdown
+    // Links first — before italic/bold which would break them
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+    // Headings
     .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+    // Bold before italic
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // Block elements
     .replace(/^> (.+)$/gm, "<blockquote>$1</blockquote>")
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
     .replace(/^---$/gm, "<hr>")
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/\n/g, "<br>")
-    .replace(/^/, "<html><body style='font-family: system-ui, sans-serif; max-width: 640px; margin: 0 auto; padding: 20px;'><p>")
-    .replace(/$/, "</p></body></html>");
+    // Paragraphs
+    .replace(/\n\n/g, "</p>\n<p>")
+    .replace(/\n/g, "<br>\n");
+
+  return `<p>${html}</p>`;
 }
