@@ -11,9 +11,8 @@ function ensureSiteRepo(): void {
   if (!fs.existsSync(path.join(SITE_DIR, ".git"))) {
     fs.mkdirSync(SITE_DIR, { recursive: true });
     execSync(`git clone git@github.com:${SITE_REPO}.git ${SITE_DIR}`, { stdio: "pipe" });
-  } else {
-    execSync("git pull --rebase", { cwd: SITE_DIR, stdio: "pipe" });
   }
+  // If already checked out (e.g. by GitHub Actions), just use it as-is
 }
 
 function buildBriefPage(brief: BriefRecord): string {
@@ -176,6 +175,12 @@ export function publishSite(siteUrl: string = "https://jonaskjellin.github.io/pu
 
   // Push to GitHub
   try {
+    // Configure git user (needed in CI)
+    try {
+      execSync('git config user.email "pulsebrief@automated.bot"', { cwd: SITE_DIR, stdio: "pipe" });
+      execSync('git config user.name "PulseBrief"', { cwd: SITE_DIR, stdio: "pipe" });
+    } catch {}
+
     execSync("git add -A", { cwd: SITE_DIR, stdio: "pipe" });
     const status = execSync("git status --porcelain", { cwd: SITE_DIR }).toString().trim();
     if (!status) {
