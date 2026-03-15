@@ -90,7 +90,7 @@ async function main() {
         persona: config.persona,
         since,
       });
-      publishSite();
+      publishSite(config.persona.profile.name);
     } else if (command in config.settings.briefs) {
       const { since, until, label } = getPresetWindow(command, config.settings);
       console.log(`[pulsebrief] ${label}`);
@@ -103,7 +103,7 @@ async function main() {
         coversUntil: until,
         preset: command,
       });
-      publishSite();
+      publishSite(config.persona.profile.name);
     } else if (command === "feedback") {
       // pulsebrief feedback <brief_id> <item_index> <signal> [comment]
       // pulsebrief feedback list — show recent briefs
@@ -157,7 +157,7 @@ async function main() {
         }
       }
     } else if (command === "publish") {
-      publishSite();
+      publishSite(config.persona.profile.name);
     } else if (command === "fetch") {
       const result = await fetchAllSources(config.sources.sources);
       console.log(`[pulsebrief] Fetch complete: ${result.items.length} items`);

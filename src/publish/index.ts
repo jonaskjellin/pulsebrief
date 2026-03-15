@@ -70,42 +70,66 @@ function wrapHtml(body: string, title: string): string {
 </html>`;
 }
 
-function buildIndexPage(briefs: BriefRecord[]): string {
-  const items = briefs.map((b) => {
+function buildIndexPage(briefs: BriefRecord[], readerName?: string): string {
+  // Deduplicate by filename — keep latest per day+preset
+  const byFilename = new Map<string, BriefRecord>();
+  for (const b of briefs) {
     const filename = getBriefFilename(b);
-    const title = getBriefTitle(b);
-    const date = new Date(b.created_at);
-    const timeStr = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
-    return `<li><a href="/${filename}"><strong>${title}</strong> <span class="date">${timeStr}</span></a></li>`;
-  });
+    const existing = byFilename.get(filename);
+    if (!existing || new Date(b.created_at) > new Date(existing.created_at)) {
+      byFilename.set(filename, b);
+    }
+  }
+  const uniqueBriefs = [...byFilename.values()]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const body = `
-    <h1>PulseBrief</h1>
-    <p class="meta">Personal intelligence briefs · <a href="/feed.xml">RSS Feed</a></p>
-    <ul class="brief-list">
-      ${items.join("\n      ")}
-    </ul>`;
+  // Group by date
+  const byDate = new Map<string, { filename: string; brief: BriefRecord }[]>();
+  for (const b of uniqueBriefs) {
+    const date = new Date(b.created_at).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    if (!byDate.has(date)) byDate.set(date, []);
+    byDate.get(date)!.push({ filename: getBriefFilename(b), brief: b });
+  }
+
+  const sections = [...byDate.entries()].map(([date, entries]) => {
+    const items = entries.map(({ filename, brief }) => {
+      const type = brief.run_type.charAt(0).toUpperCase() + brief.run_type.slice(1);
+      return `<li><a href="/${filename}">${type} Pulse</a></li>`;
+    }).join("\n        ");
+    return `<div class="day">
+      <h2>${date}</h2>
+      <ul class="brief-list">${items}</ul>
+    </div>`;
+  }).join("\n    ");
+
+  const name = readerName || "PulseBrief";
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PulseBrief</title>
-  <link rel="alternate" type="application/atom+xml" title="PulseBrief Feed" href="/feed.xml">
+  <title>${name}'s Pulse</title>
+  <link rel="alternate" type="application/atom+xml" title="${name}'s Pulse Feed" href="/feed.xml">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 16px; color: #1a1a1a; line-height: 1.6; }
-    h1 { font-size: 1.6em; margin-bottom: 4px; }
-    .meta { color: #888; font-size: 0.9em; margin-bottom: 24px; }
+    h1 { font-size: 1.8em; margin-bottom: 4px; }
+    .subtitle { color: #888; font-size: 0.9em; margin-bottom: 32px; }
+    .subtitle a { color: #0066cc; text-decoration: none; }
+    .day { margin-bottom: 24px; }
+    .day h2 { font-size: 1em; color: #888; font-weight: normal; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
     .brief-list { list-style: none; }
-    .brief-list li { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-    .brief-list a { text-decoration: none; color: #1a1a1a; display: block; }
+    .brief-list li { padding: 6px 0; }
+    .brief-list a { text-decoration: none; color: #1a1a1a; font-weight: 500; }
     .brief-list a:hover { color: #0066cc; }
-    .brief-list .date { color: #888; font-size: 0.85em; margin-left: 8px; }
   </style>
 </head>
-<body>${body}</body>
+<body>
+  <h1>${name}'s Pulse</h1>
+  <p class="subtitle">Personal intelligence briefs · <a href="/feed.xml">RSS Feed</a></p>
+  ${sections}
+</body>
 </html>`;
 }
 
@@ -144,7 +168,7 @@ ${entries.join("\n")}
 </feed>`;
 }
 
-export function publishSite(siteUrl: string = "https://jonaskjellin.github.io/pulsebrief-site"): void {
+export function publishSite(readerName?: string, siteUrl: string = "https://jonaskjellin.github.io/pulsebrief-site"): void {
   console.log("[publish] Building site...");
 
   // Get all briefs with rendered content from state file
@@ -168,7 +192,7 @@ export function publishSite(siteUrl: string = "https://jonaskjellin.github.io/pu
   }
 
   // Generate index
-  fs.writeFileSync(path.join(SITE_DIR, "index.html"), buildIndexPage(briefs), "utf-8");
+  fs.writeFileSync(path.join(SITE_DIR, "index.html"), buildIndexPage(briefs, readerName), "utf-8");
 
   // Generate Atom feed
   fs.writeFileSync(path.join(SITE_DIR, "feed.xml"), buildAtomFeed(briefs, siteUrl), "utf-8");
