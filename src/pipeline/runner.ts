@@ -1,58 +1,68 @@
 import type { Settings, SourcesConfig, Persona } from "../config/schema";
-import type Database from "better-sqlite3";
 import { fetchAllSources } from "../sources";
 import { normalizeItems } from "../normalize";
 import { generateBrief, type BriefItem } from "../ai";
 import { deliverBrief } from "../deliver";
+import { appendBrief, updateBriefRenderedMd } from "../state";
 
 export interface PipelineContext {
   settings: Settings;
   sources: SourcesConfig;
   persona: Persona;
-  db: Database.Database;
   since?: Date;
   coversUntil?: Date;  // preset anchor end time, or now for custom runs
   preset?: string;
 }
 
 export async function runPipeline(ctx: PipelineContext): Promise<BriefItem[]> {
-  const { settings, sources, persona, db } = ctx;
+  const { settings, sources, persona } = ctx;
 
-  // Kick off fetch in background — brief generates from what's already in DB
-  fetchAllSources(sources.sources, db)
-    .then((result) => {
-      normalizeItems(db);
-      console.log(`[fetch] Done: ${result.new} new items stored for next run`);
-    })
-    .catch((err) => {
-      console.error(`[fetch] Background fetch error: ${err.message}`);
-    });
+  // Fetch all sources
+  console.log(`[pipeline] Fetching sources...`);
+  const fetchResult = await fetchAllSources(sources.sources);
+  console.log(`[pipeline] Fetched ${fetchResult.items.length} items total`);
+  if (fetchResult.errors.length > 0) {
+    console.log(`[pipeline] ${fetchResult.errors.length} source(s) failed`);
+  }
 
-  // Generate brief from existing DB content
+  // Normalize in memory
+  const { items: normalizedItems, normalized, skipped } = normalizeItems(fetchResult.items);
+  console.log(`[pipeline] Normalized: ${normalized}, skipped: ${skipped}`);
+
+  // Generate brief from normalized items
   console.log(`[pipeline] Generating brief...`);
-  const briefItems = await generateBrief({ db, persona, settings, since: ctx.since });
+  const briefItems = await generateBrief({
+    items: normalizedItems,
+    persona,
+    settings,
+    since: ctx.since,
+    until: ctx.coversUntil,
+  });
 
   if (briefItems.length === 0) {
     console.log(`[pipeline] Nothing significant — no brief generated`);
     return [];
   }
 
-  // Store — covers_until marks where this brief ends
-  // "run" will pick up from the last brief's covers_until
+  // Store brief in state file
   const coversUntil = ctx.coversUntil || new Date();
-  const insertBrief = db.prepare(
-    `INSERT INTO briefs (run_type, content_json, covers_until) VALUES (?, ?, ?)`
-  );
-  const briefJson = JSON.stringify(briefItems, null, 2);
-  const info = insertBrief.run(ctx.preset || "custom", briefJson, coversUntil.toISOString());
+  const briefId = appendBrief({
+    run_type: ctx.preset || "custom",
+    covers_until: coversUntil.toISOString(),
+    created_at: new Date().toISOString(),
+    rendered_md: "",
+  });
 
   // Deliver
-  const { markdown } = await deliverBrief(briefItems, settings.delivery.channels, ctx.preset);
+  const { markdown } = await deliverBrief(briefItems, settings.delivery.channels, {
+    readerName: persona.profile.name,
+    preset: ctx.preset,
+    since: ctx.since,
+    until: ctx.coversUntil,
+  });
 
-  db.prepare("UPDATE briefs SET rendered_md = ? WHERE id = ?").run(
-    markdown,
-    info.lastInsertRowid
-  );
+  // Update brief with rendered markdown
+  updateBriefRenderedMd(briefId, markdown);
 
   console.log("\n" + markdown);
 

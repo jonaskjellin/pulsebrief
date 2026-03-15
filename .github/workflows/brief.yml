@@ -1,0 +1,61 @@
+name: Generate Briefs
+
+on:
+  schedule:
+    # Times in UTC — adjust for your timezone (CET = UTC+1, CEST = UTC+2)
+    - cron: '0 5 * * *'   # Morning 07:00 CET / 06:00 UTC
+    - cron: '0 11 * * *'  # Afternoon 13:00 CET / 11:00 UTC
+    - cron: '0 16 * * *'  # Evening 18:00 CET / 16:00 UTC
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to run (morning, afternoon, evening, run, run --hours=4)'
+        required: false
+        default: 'run'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout site repo
+        uses: actions/checkout@v4
+        with:
+          repository: jonaskjellin/pulsebrief-site
+          path: site
+          token: ${{ secrets.SITE_PUSH_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine command
+        id: command
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "cmd=${{ github.event.inputs.command }}" >> $GITHUB_OUTPUT
+          else
+            # Determine from cron schedule
+            HOUR=$(date -u +%H)
+            if [ "$HOUR" = "05" ]; then
+              echo "cmd=morning" >> $GITHUB_OUTPUT
+            elif [ "$HOUR" = "11" ]; then
+              echo "cmd=afternoon" >> $GITHUB_OUTPUT
+            elif [ "$HOUR" = "16" ]; then
+              echo "cmd=evening" >> $GITHUB_OUTPUT
+            else
+              echo "cmd=run" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Generate brief
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npx tsx src/index.ts ${{ steps.command.outputs.cmd }}

@@ -1,24 +1,16 @@
 import type { Source } from "../config/schema";
 import type { SourceAdapter, RawItem } from "./types";
 import { rssAdapter } from "./rss";
-import type Database from "better-sqlite3";
 
 const adapters: Record<string, SourceAdapter> = {
   rss: rssAdapter,
 };
 
 export async function fetchAllSources(
-  sources: Source[],
-  db: Database.Database
-): Promise<{ total: number; new: number; errors: string[] }> {
+  sources: Source[]
+): Promise<{ items: RawItem[]; errors: string[] }> {
   const errors: string[] = [];
-  let totalItems = 0;
-  let newItems = 0;
-
-  const insertStmt = db.prepare(`
-    INSERT OR IGNORE INTO items (url, title, source_name, domain, raw_content, published_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `);
+  const allItems: RawItem[] = [];
 
   // Fetch all sources in parallel with 8s hard timeout per source
   const SOURCE_TIMEOUT = 8000;
@@ -51,18 +43,9 @@ export async function fetchAllSources(
     }
 
     for (const item of result.value) {
-      totalItems++;
-      const info = insertStmt.run(
-        item.url,
-        item.title,
-        item.source_name,
-        item.domain,
-        item.raw_content,
-        item.published_at
-      );
-      if (info.changes > 0) newItems++;
+      allItems.push(item);
     }
   }
 
-  return { total: totalItems, new: newItems, errors };
+  return { items: allItems, errors };
 }

@@ -12,7 +12,7 @@ export const SourceSchema = z.object({
       env_var: z.string(),
     })
     .optional(),
-  filters: z.record(z.string()).optional(),
+  filters: z.record(z.string(), z.string()).optional(),
 });
 
 export const SourcesConfigSchema = z.object({
@@ -55,9 +55,6 @@ export const SettingsSchema = z.object({
   }),
   delivery: z.object({
     channels: z.array(DeliveryChannelSchema),
-  }),
-  database: z.object({
-    path: z.string(),
   }),
 });
 

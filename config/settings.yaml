@@ -31,6 +31,3 @@ delivery:
   #   smtp_pass_env: "SMTP_PASS"
   #   from: "pulsebrief@example.com"
   #   to: "you@example.com"
-
-database:
-  path: "data/pulsebrief.db"

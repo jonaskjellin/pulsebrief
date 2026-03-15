@@ -1,4 +1,13 @@
-import type Database from "better-sqlite3";
+import type { RawItem } from "../sources/types";
+
+export interface NormalizedItem {
+  title: string;
+  url: string;
+  source_name: string;
+  domain: string;
+  content: string;
+  published_at: string | null;
+}
 
 // Strip HTML tags and decode common entities
 function stripHtml(html: string): string {
@@ -20,35 +29,37 @@ function truncate(text: string, maxLength: number = 2000): string {
   return text.slice(0, maxLength) + "...";
 }
 
-export function normalizeItems(db: Database.Database): { normalized: number; skipped: number } {
-  const unnormalized = db
-    .prepare("SELECT id, raw_content FROM items WHERE normalized = 0")
-    .all() as { id: number; raw_content: string }[];
-
+export function normalizeItems(rawItems: RawItem[]): { items: NormalizedItem[]; normalized: number; skipped: number } {
+  const items: NormalizedItem[] = [];
   let normalized = 0;
   let skipped = 0;
 
-  const updateStmt = db.prepare(
-    "UPDATE items SET content = ?, normalized = 1 WHERE id = ?"
-  );
+  // Deduplicate by URL
+  const seen = new Set<string>();
 
-  for (const item of unnormalized) {
-    const cleaned = truncate(stripHtml(item.raw_content || ""));
-    if (!cleaned) {
+  for (const raw of rawItems) {
+    if (seen.has(raw.url)) {
       skipped++;
-      // Still mark as normalized so we don't reprocess
-      updateStmt.run("", item.id);
       continue;
     }
-    updateStmt.run(cleaned, item.id);
+    seen.add(raw.url);
+
+    const cleaned = truncate(stripHtml(raw.raw_content || ""));
+    if (!cleaned) {
+      skipped++;
+      continue;
+    }
+
+    items.push({
+      title: raw.title,
+      url: raw.url,
+      source_name: raw.source_name,
+      domain: raw.domain,
+      content: cleaned,
+      published_at: raw.published_at,
+    });
     normalized++;
   }
 
-  return { normalized, skipped };
-}
-
-export function getDeduplicationStats(db: Database.Database): { total: number; unique_urls: number } {
-  const total = (db.prepare("SELECT COUNT(*) as c FROM items").get() as { c: number }).c;
-  // URL dedup is handled by the UNIQUE constraint on insert — all items are already unique by URL
-  return { total, unique_urls: total };
+  return { items, normalized, skipped };
 }

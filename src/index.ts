@@ -1,11 +1,11 @@
 import "dotenv/config";
 import { loadAllConfig } from "./config/loader";
 import type { Settings } from "./config/schema";
-import { getDb, closeDb } from "./db";
 import { runPipeline } from "./pipeline/runner";
 import { fetchAllSources } from "./sources";
 import { normalizeItems } from "./normalize";
 import { listBriefs, getBriefItems, submitFeedback } from "./feedback";
+import { publishSite } from "./publish";
 
 function parseAnchorTime(anchor: string): { hours: number; minutes: number } {
   const [h, m] = anchor.split(":").map(Number);
@@ -71,9 +71,6 @@ async function main() {
 
   console.log("[pulsebrief] Config loaded successfully");
 
-  const db = getDb(config.settings.database.path);
-  console.log("[pulsebrief] Database initialized");
-
   try {
     if (command === "run") {
       const hoursArg = process.argv.find((a) => a.startsWith("--hours="));
@@ -91,9 +88,9 @@ async function main() {
         settings: config.settings,
         sources: config.sources,
         persona: config.persona,
-        db,
         since,
       });
+      publishSite();
     } else if (command in config.settings.briefs) {
       const { since, until, label } = getPresetWindow(command, config.settings);
       console.log(`[pulsebrief] ${label}`);
@@ -102,18 +99,18 @@ async function main() {
         settings: config.settings,
         sources: config.sources,
         persona: config.persona,
-        db,
         since,
         coversUntil: until,
         preset: command,
       });
+      publishSite();
     } else if (command === "feedback") {
       // pulsebrief feedback <brief_id> <item_index> <signal> [comment]
       // pulsebrief feedback list — show recent briefs
       const subcommand = process.argv[3];
 
       if (!subcommand || subcommand === "list") {
-        const briefs = listBriefs(db);
+        const briefs = listBriefs();
         if (briefs.length === 0) {
           console.log("[feedback] No briefs yet");
         } else {
@@ -130,7 +127,7 @@ async function main() {
 
         if (!itemArg) {
           // Show items in this brief
-          const items = getBriefItems(db, briefId);
+          const items = getBriefItems(briefId);
           if (items.length === 0) {
             console.log(`[feedback] Brief #${briefId} not found`);
           } else {
@@ -154,19 +151,21 @@ async function main() {
             console.log(`[feedback] Unknown signal "${rawSignal}". Use: useful, not_useful, more, less`);
           } else {
             const comment = process.argv.slice(6).join(" ") || undefined;
-            submitFeedback(db, { brief_id: briefId, item_index: itemIndex, signal: signal as any, comment });
+            submitFeedback({ brief_id: briefId, item_index: itemIndex, signal: signal as any, comment });
             console.log(`[feedback] Recorded: item ${itemIndex} → ${signal}${comment ? ` ("${comment}")` : ""}`);
           }
         }
       }
+    } else if (command === "publish") {
+      publishSite();
     } else if (command === "fetch") {
-      const result = await fetchAllSources(config.sources.sources, db);
-      console.log(`[pulsebrief] Fetch complete: ${result.total} total, ${result.new} new items`);
+      const result = await fetchAllSources(config.sources.sources);
+      console.log(`[pulsebrief] Fetch complete: ${result.items.length} items`);
       if (result.errors.length > 0) {
         console.log(`[pulsebrief] ${result.errors.length} source(s) failed:`);
         result.errors.forEach((e) => console.log(`  - ${e}`));
       }
-      const normResult = normalizeItems(db);
+      const normResult = normalizeItems(result.items);
       console.log(`[pulsebrief] Normalized: ${normResult.normalized}, skipped: ${normResult.skipped}`);
     } else {
       console.log(`[pulsebrief] Unknown command: ${command}`);
@@ -178,10 +177,11 @@ async function main() {
       console.log("  pulsebrief run --hours=4    — last 4 hours");
       console.log(presets);
       console.log("  pulsebrief feedback         — rate brief items");
+      console.log("  pulsebrief publish          — publish site to GitHub Pages");
       console.log("  pulsebrief fetch            — fetch only, no brief");
     }
-  } finally {
-    closeDb();
+  } catch (err) {
+    throw err;
   }
 }
 
