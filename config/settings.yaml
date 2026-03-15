@@ -1,0 +1,36 @@
+# PulseBrief settings
+
+# Predefined briefs — each has a fixed anchor time and looks back to the previous preset
+# morning covers since yesterday's evening (07:00 - 18:00 yesterday = last ~13h)
+# afternoon covers since morning (13:00 - 07:00 = last 6h)
+# evening covers since afternoon (18:00 - 13:00 = last 5h)
+briefs:
+  morning:
+    anchor: "07:00"
+    since: "evening"     # since yesterday's evening anchor
+  afternoon:
+    anchor: "13:00"
+    since: "morning"     # since today's morning anchor
+  evening:
+    anchor: "18:00"
+    since: "afternoon"   # since today's afternoon anchor
+
+ai:
+  model: "claude-sonnet-4-20250514"
+  max_items_per_brief: 10
+
+delivery:
+  channels:
+    - type: file
+      path: "data/briefs"
+
+  # - type: email
+  #   smtp_host: "smtp.example.com"
+  #   smtp_port: 587
+  #   smtp_user_env: "SMTP_USER"
+  #   smtp_pass_env: "SMTP_PASS"
+  #   from: "pulsebrief@example.com"
+  #   to: "you@example.com"
+
+database:
+  path: "data/pulsebrief.db"

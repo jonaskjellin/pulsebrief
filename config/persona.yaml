@@ -1,0 +1,50 @@
+# PulseBrief persona store
+# Edit this to reflect who you are and what you care about
+
+profile:
+  name: "Jonas"
+  role: "Head of Cyber Security Architecture & Engineering"
+  organization_type: "Large enterprise, global retail group"
+  reports_to: "CISO"
+  location: "Sweden"
+  experience_years: 25
+  background: >
+    Deep technical roots in software engineering before moving into security architecture.
+    Founded and ran a fintech startup in open banking (2017-2023).
+    Now building AI-driven side projects alongside enterprise security work.
+
+focus:
+  current:
+    - "AI applied to cybersecurity — offensive use by attackers and defensive tooling"
+    - "Security architecture patterns for AI-native systems"
+    - "MCP (Model Context Protocol) security implications"
+    - "Agentic AI systems and their trust and access models"
+  standing:
+    - "Threat landscape shifts affecting large enterprise and retail sector"
+    - "Nation-state activity targeting European organizations"
+    - "EU regulatory movement — NIS2, DORA, AI Act intersections with security"
+    - "Startup and VC activity in the security tooling space"
+    - "What CISOs and security leaders are debating at board level"
+    - "Vendor consolidation and market shifts in enterprise security"
+
+reading_lens: "Senior architect and strategic thinker, not SOC analyst. Surface significance and narrative. Flag vendor-originated research explicitly."
+
+exclusions:
+  topics:
+    - "Individual CVE patch notices"
+    - "Vendor product launches and press releases"
+    - "Crypto and blockchain unless tied to broader financial or regulatory trends"
+    - "SOC-level operational content — SIEM rules, detection signatures, IR playbooks"
+    - "US-only regulatory content with no European relevance"
+  source_types:
+    - "sponsored content"
+    - "vendor whitepapers presented as independent research"
+    - "recycled news across multiple outlets"
+
+preferences:
+  tone: "direct"
+  depth: "awareness"
+  format: "headline, 2-3 sentences context, one line why it made the cut"
+  max_items: 8
+  flag_marketing: true
+  variable_count: true

@@ -1,0 +1,96 @@
+# PulseBrief source definitions
+
+sources:
+  # === Cybersecurity — core ===
+  - name: "Krebs on Security"
+    type: rss
+    url: "https://krebsonsecurity.com/feed/"
+    domain: cybersecurity
+
+  - name: "The Hacker News"
+    type: rss
+    url: "https://feeds.feedburner.com/TheHackersNews"
+    domain: cybersecurity
+
+  - name: "Schneier on Security"
+    type: rss
+    url: "https://www.schneier.com/feed/atom/"
+    domain: cybersecurity
+
+  - name: "BleepingComputer"
+    type: rss
+    url: "https://www.bleepingcomputer.com/feed/"
+    domain: cybersecurity
+
+  - name: "The Record"
+    type: rss
+    url: "https://therecord.media/feed"
+    domain: cybersecurity
+
+  - name: "Dark Reading"
+    type: rss
+    url: "https://www.darkreading.com/rss.xml"
+    domain: cybersecurity
+
+  - name: "SecurityWeek"
+    type: rss
+    url: "https://feeds.feedburner.com/securityweek"
+    domain: cybersecurity
+
+  - name: "Threatpost"
+    type: rss
+    url: "https://threatpost.com/feed/"
+    domain: cybersecurity
+
+  - name: "CISA Alerts"
+    type: rss
+    url: "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+    domain: cybersecurity
+
+  - name: "Microsoft Security Blog"
+    type: rss
+    url: "https://www.microsoft.com/en-us/security/blog/feed/"
+    domain: cybersecurity
+
+  - name: "SentinelOne Blog"
+    type: rss
+    url: "https://www.sentinelone.com/blog/feed/"
+    domain: cybersecurity
+
+  # === AI & Technology ===
+  - name: "Ars Technica - AI"
+    type: rss
+    url: "https://feeds.arstechnica.com/arstechnica/technology-lab"
+    domain: ai-tech
+
+  - name: "The Verge - AI"
+    type: rss
+    url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+    domain: ai-tech
+
+  - name: "MIT Technology Review"
+    type: rss
+    url: "https://www.technologyreview.com/feed/"
+    domain: ai-tech
+
+  - name: "Simon Willison"
+    type: rss
+    url: "https://simonwillison.net/atom/everything/"
+    domain: ai-tech
+
+  - name: "Hacker News - Top"
+    type: rss
+    url: "https://hnrss.org/frontpage"
+    domain: ai-tech
+
+  # === Startups & VC ===
+  - name: "TechCrunch"
+    type: rss
+    url: "https://techcrunch.com/feed/"
+    domain: startups-vc
+
+  # === EU Regulatory ===
+  - name: "ENISA News"
+    type: rss
+    url: "https://www.enisa.europa.eu/rss.xml"
+    domain: eu-regulatory
