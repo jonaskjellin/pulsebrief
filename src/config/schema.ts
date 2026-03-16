@@ -55,6 +55,7 @@ const BriefPresetSchema = z.object({
 
 // Settings
 export const SettingsSchema = z.object({
+  timezone: z.string().default("UTC"),
   briefs: z.record(z.string(), BriefPresetSchema),
   ai: z.object({
     model: z.string(),

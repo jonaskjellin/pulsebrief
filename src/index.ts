@@ -7,9 +7,25 @@ import { normalizeItems } from "./normalize";
 import { listBriefs, getBriefItems, submitFeedback } from "./feedback";
 import { publishSite } from "./publish";
 
-function parseAnchorTime(anchor: string): { hours: number; minutes: number } {
-  const [h, m] = anchor.split(":").map(Number);
-  return { hours: h, minutes: m };
+// Build a Date object for a specific hour:minute in the configured timezone
+function dateInTimezone(tz: string, year: number, month: number, day: number, hours: number, minutes: number): Date {
+  // Create an ISO string for the target local time, then figure out the UTC offset
+  // by comparing what that time means in the target timezone
+  const guess = new Date(Date.UTC(year, month, day, hours, minutes, 0));
+  const inTz = new Date(guess.toLocaleString("en-US", { timeZone: tz }));
+  const offset = inTz.getTime() - guess.getTime();
+  return new Date(guess.getTime() - offset);
+}
+
+function getNowInTimezone(tz: string): { now: Date; year: number; month: number; day: number; hours: number } {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(now);
+  const get = (type: string) => parseInt(parts.find(p => p.type === type)!.value, 10);
+  return { now, year: get("year"), month: get("month") - 1, day: get("day"), hours: get("hour") };
 }
 
 function getPresetWindow(preset: string, settings: Settings): { since: Date; until: Date; label: string } {
@@ -24,35 +40,40 @@ function getPresetWindow(preset: string, settings: Settings): { since: Date; unt
     throw new Error(`Preset "${preset}" references unknown preset "${presetConfig.since}"`);
   }
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tz = settings.timezone || "UTC";
+  const { year, month, day, hours: currentHour } = getNowInTimezone(tz);
 
-  // Build "until" — this preset's anchor time
-  const anchor = parseAnchorTime(presetConfig.anchor);
-  const until = new Date(today);
-  until.setHours(anchor.hours, anchor.minutes, 0, 0);
+  // Build "until" — this preset's anchor time in the configured timezone
+  const [anchorH, anchorM] = presetConfig.anchor.split(":").map(Number);
+  let until = dateInTimezone(tz, year, month, day, anchorH, anchorM);
 
-  // If we haven't reached this anchor yet today, use yesterday's
-  if (now < until) {
-    until.setDate(until.getDate() - 1);
+  // If we haven't reached this anchor yet today (in local time), use yesterday's
+  if (currentHour < anchorH) {
+    until = dateInTimezone(tz, year, month, day - 1, anchorH, anchorM);
   }
 
   // Build "since" — previous preset's anchor, relative to "until"
-  const sinceAnchor = parseAnchorTime(sincePreset.anchor);
-  const since = new Date(until);
-  since.setHours(sinceAnchor.hours, sinceAnchor.minutes, 0, 0);
-  if (sinceAnchor.hours >= anchor.hours) {
-    since.setDate(since.getDate() - 1);
+  const [sinceH, sinceM] = sincePreset.anchor.split(":").map(Number);
+  const untilDate = new Date(until.toLocaleString("en-US", { timeZone: tz }));
+  const untilDay = untilDate.getDate();
+  const untilMonth = untilDate.getMonth();
+  const untilYear = untilDate.getFullYear();
+
+  let since: Date;
+  if (sinceH >= anchorH) {
+    // Previous preset is later in the day — must be day before
+    since = dateInTimezone(tz, untilYear, untilMonth, untilDay - 1, sinceH, sinceM);
+  } else {
+    since = dateInTimezone(tz, untilYear, untilMonth, untilDay, sinceH, sinceM);
   }
 
-  const fmt = (d: Date) => {
-    const dayDiff = Math.round((today.getTime() - new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) / 86400000);
-    const dayLabel = dayDiff === 0 ? "today" : dayDiff === 1 ? "yesterday" : `${dayDiff}d ago`;
-    const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
-    return `${dayLabel} ${time}`;
-  };
+  const fmt = (d: Date) => d.toLocaleString("en-US", {
+    timeZone: tz,
+    weekday: "short", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  });
 
-  const label = `${preset} — ${fmt(since)} → ${fmt(until)}`;
+  const label = `${preset} — ${fmt(since)} → ${fmt(until)} (${tz})`;
   return { since, until, label };
 }
 

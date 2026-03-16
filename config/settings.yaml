@@ -1,9 +1,8 @@
 # PulseBrief settings
 
-# Predefined briefs — each has a fixed anchor time and looks back to the previous preset
-# morning covers since yesterday's evening (07:00 - 18:00 yesterday = last ~13h)
-# afternoon covers since morning (13:00 - 07:00 = last 6h)
-# evening covers since afternoon (18:00 - 13:00 = last 5h)
+timezone: "Europe/Stockholm"
+
+# Predefined briefs — all times are in the timezone above
 briefs:
   morning:
     anchor: "07:00"

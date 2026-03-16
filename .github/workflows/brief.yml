@@ -2,10 +2,11 @@ name: Generate Briefs
 
 on:
   schedule:
-    # Times in UTC — adjust for your timezone (CET = UTC+1, CEST = UTC+2)
-    - cron: '0 5 * * *'   # Morning 07:00 CET / 06:00 UTC
-    - cron: '0 11 * * *'  # Afternoon 13:00 CET / 11:00 UTC
-    - cron: '0 16 * * *'  # Evening 18:00 CET / 16:00 UTC
+    # Times in UTC — CEST (Mar-Oct) = UTC+2, CET (Oct-Mar) = UTC+1
+    # These target CEST. In winter they'll fire 1h early — acceptable.
+    - cron: '0 5 * * *'   # Morning 07:00 CEST
+    - cron: '0 11 * * *'  # Afternoon 13:00 CEST
+    - cron: '0 16 * * *'  # Evening 18:00 CEST
   workflow_dispatch:
     inputs:
       command:
