@@ -1,7 +1,7 @@
 # PulseBrief source definitions
 
 sources:
-  # === Cybersecurity — core ===
+  # === Cybersecurity ===
   - name: "Krebs on Security"
     type: rss
     url: "https://krebsonsecurity.com/feed/"
@@ -57,8 +57,53 @@ sources:
     url: "https://www.sentinelone.com/blog/feed/"
     domain: cybersecurity
 
+  - name: "Google Threat Analysis Group"
+    type: rss
+    url: "https://blog.google/threat-analysis-group/rss/"
+    domain: cybersecurity
+
+  - name: "Cloudflare Blog"
+    type: rss
+    url: "https://blog.cloudflare.com/rss/"
+    domain: cybersecurity
+
+  - name: "Risky Business News"
+    type: rss
+    url: "https://riskybiznews.substack.com/feed"
+    domain: cybersecurity
+
+  - name: "Wired Security"
+    type: rss
+    url: "https://www.wired.com/feed/category/security/latest/rss"
+    domain: cybersecurity
+
   # === AI & Technology ===
-  - name: "Ars Technica - AI"
+  - name: "Google AI Blog"
+    type: rss
+    url: "https://blog.google/technology/ai/rss/"
+    domain: ai-tech
+
+  - name: "OpenAI Blog"
+    type: rss
+    url: "https://openai.com/blog/rss.xml"
+    domain: ai-tech
+
+  - name: "Microsoft AI Blog"
+    type: rss
+    url: "https://blogs.microsoft.com/ai/feed/"
+    domain: ai-tech
+
+  - name: "DeepMind Blog"
+    type: rss
+    url: "https://deepmind.google/blog/rss.xml"
+    domain: ai-tech
+
+  - name: "Wired AI"
+    type: rss
+    url: "https://www.wired.com/feed/tag/ai/latest/rss"
+    domain: ai-tech
+
+  - name: "Ars Technica"
     type: rss
     url: "https://feeds.arstechnica.com/arstechnica/technology-lab"
     domain: ai-tech
@@ -83,10 +128,30 @@ sources:
     url: "https://hnrss.org/frontpage"
     domain: ai-tech
 
+  - name: "Stratechery"
+    type: rss
+    url: "https://stratechery.com/feed/"
+    domain: ai-tech
+
   # === Startups & VC ===
   - name: "TechCrunch"
     type: rss
     url: "https://techcrunch.com/feed/"
+    domain: startups-vc
+
+  - name: "Crunchbase News"
+    type: rss
+    url: "https://news.crunchbase.com/feed/"
+    domain: startups-vc
+
+  - name: "Sifted"
+    type: rss
+    url: "https://sifted.eu/feed"
+    domain: startups-vc
+
+  - name: "EU-Startups"
+    type: rss
+    url: "https://www.eu-startups.com/feed/"
     domain: startups-vc
 
   # === EU Regulatory ===
