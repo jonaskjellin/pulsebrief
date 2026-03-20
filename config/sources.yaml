@@ -57,6 +57,21 @@ sources:
     url: "https://www.sentinelone.com/blog/feed/"
     domain: cybersecurity
 
+  - name: "Cybersecurity News"
+    type: rss
+    url: "https://cybersecuritynews.com/feed/"
+    domain: cybersecurity
+
+  - name: "GBHackers"
+    type: rss
+    url: "https://gbhackers.com/feed/"
+    domain: cybersecurity
+
+  - name: "CyberPress"
+    type: rss
+    url: "https://cyberpress.org/feed/"
+    domain: cybersecurity
+
   - name: "Google Threat Analysis Group"
     type: rss
     url: "https://blog.google/threat-analysis-group/rss/"
