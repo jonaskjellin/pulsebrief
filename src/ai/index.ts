@@ -104,7 +104,7 @@ export async function generateBrief(input: GenerateBriefInput): Promise<BriefIte
 
   const response = await client.messages.create({
     model: settings.ai.model,
-    max_tokens: 4096,
+    max_tokens: 8192,
     system: systemPrompt,
     messages: [{ role: "user", content: userPrompt }],
   });

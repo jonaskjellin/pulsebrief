@@ -12,11 +12,6 @@ sources:
     url: "https://feeds.feedburner.com/TheHackersNews"
     domain: cybersecurity
 
-  - name: "Schneier on Security"
-    type: rss
-    url: "https://www.schneier.com/feed/atom/"
-    domain: cybersecurity
-
   - name: "BleepingComputer"
     type: rss
     url: "https://www.bleepingcomputer.com/feed/"
@@ -37,26 +32,6 @@ sources:
     url: "https://feeds.feedburner.com/securityweek"
     domain: cybersecurity
 
-  - name: "Threatpost"
-    type: rss
-    url: "https://threatpost.com/feed/"
-    domain: cybersecurity
-
-  - name: "CISA Alerts"
-    type: rss
-    url: "https://www.cisa.gov/cybersecurity-advisories/all.xml"
-    domain: cybersecurity
-
-  - name: "Microsoft Security Blog"
-    type: rss
-    url: "https://www.microsoft.com/en-us/security/blog/feed/"
-    domain: cybersecurity
-
-  - name: "SentinelOne Blog"
-    type: rss
-    url: "https://www.sentinelone.com/blog/feed/"
-    domain: cybersecurity
-
   - name: "Cybersecurity News"
     type: rss
     url: "https://cybersecuritynews.com/feed/"
@@ -72,52 +47,17 @@ sources:
     url: "https://cyberpress.org/feed/"
     domain: cybersecurity
 
-  - name: "Google Threat Analysis Group"
-    type: rss
-    url: "https://blog.google/threat-analysis-group/rss/"
-    domain: cybersecurity
-
-  - name: "Cloudflare Blog"
-    type: rss
-    url: "https://blog.cloudflare.com/rss/"
-    domain: cybersecurity
-
-  - name: "Risky Business News"
-    type: rss
-    url: "https://riskybiznews.substack.com/feed"
-    domain: cybersecurity
-
   - name: "Wired Security"
     type: rss
     url: "https://www.wired.com/feed/category/security/latest/rss"
     domain: cybersecurity
 
+  - name: "Schneier on Security"
+    type: rss
+    url: "https://www.schneier.com/feed/atom/"
+    domain: cybersecurity
+
   # === AI & Technology ===
-  - name: "Google AI Blog"
-    type: rss
-    url: "https://blog.google/technology/ai/rss/"
-    domain: ai-tech
-
-  - name: "OpenAI Blog"
-    type: rss
-    url: "https://openai.com/blog/rss.xml"
-    domain: ai-tech
-
-  - name: "Microsoft AI Blog"
-    type: rss
-    url: "https://blogs.microsoft.com/ai/feed/"
-    domain: ai-tech
-
-  - name: "DeepMind Blog"
-    type: rss
-    url: "https://deepmind.google/blog/rss.xml"
-    domain: ai-tech
-
-  - name: "Wired AI"
-    type: rss
-    url: "https://www.wired.com/feed/tag/ai/latest/rss"
-    domain: ai-tech
-
   - name: "Ars Technica"
     type: rss
     url: "https://feeds.arstechnica.com/arstechnica/technology-lab"
@@ -126,6 +66,11 @@ sources:
   - name: "The Verge - AI"
     type: rss
     url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+    domain: ai-tech
+
+  - name: "Wired AI"
+    type: rss
+    url: "https://www.wired.com/feed/tag/ai/latest/rss"
     domain: ai-tech
 
   - name: "MIT Technology Review"
@@ -143,12 +88,7 @@ sources:
     url: "https://hnrss.org/frontpage"
     domain: ai-tech
 
-  - name: "Stratechery"
-    type: rss
-    url: "https://stratechery.com/feed/"
-    domain: ai-tech
-
-  # === Startups & VC ===
+  # === Business & Startups ===
   - name: "TechCrunch"
     type: rss
     url: "https://techcrunch.com/feed/"
@@ -162,11 +102,6 @@ sources:
   - name: "Sifted"
     type: rss
     url: "https://sifted.eu/feed"
-    domain: startups-vc
-
-  - name: "EU-Startups"
-    type: rss
-    url: "https://www.eu-startups.com/feed/"
     domain: startups-vc
 
   # === EU Regulatory ===
